@@ -95,6 +95,7 @@ setup(
             'dicom=datalad_neuroimaging.extractors.dicom:MetadataExtractor',
             'nidm=datalad_neuroimaging.extractors.nidm:MetadataExtractor',
             'nifti1=datalad_neuroimaging.extractors.nifti1:MetadataExtractor',
+            'minc2=datalad_neuroimaging.extractors.minc2:MetadataExtractor',
         ],
         'datalad.tests': [
             'neuroimaging=datalad_neuroimaging',
