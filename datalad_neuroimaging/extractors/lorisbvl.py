@@ -38,15 +38,15 @@ class LorisExtractor(BaseMetadataExtractor):
                         candidate = instrument_dict['Meta']['Candidate']
                         visit = instrument_dict['Meta']['Visit']
 
+                        # Remove Meta from instrument dictionary
+                        instrument_dict.pop('Meta', None)
+
                         # first key in instrument dictionary
                         first_key = next(iter(instrument_dict))
 
                         # Add Candidate & Visit to Instrument dictionary
                         instrument_dict[first_key]['Candidate'] = candidate
                         instrument_dict[first_key]['Visit'] = visit
-
-                        # Remove Meta from instrument dictionary
-                        instrument_dict.pop('Meta', None)
 
                         # Add to collection dictionary based on candidate_visit as index.
                         if candidate + '_' + visit in self.collection:
