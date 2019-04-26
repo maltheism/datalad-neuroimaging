@@ -22,9 +22,40 @@ class LorisExtractor(BaseMetadataExtractor):
         files = []
         # We're only interested in files that look like minc files.
         self.collection = {}
+        self.candidates = {}
+        self.visits = {}
         for f in self.paths:
+            print f
             if f.endswith(".mnc"):
                 files.append(f)
+            elif f.endswith('.json'):
+                if f == 'Candidate_Data.json':
+                    print 'Candidate_data.json'
+                    with open(str(f), 'r') as file:
+                        # read file content
+                        file_content = file.read()
+                        try:
+                            candidates_dict = json.loads(file_content)
+                            for candidate in candidates_dict['Candidates']:
+                                self.candidates[candidate['CandID']] = candidate
+                        except ValueError:
+                            continue
+                elif f.startswith('visit_'):
+                    print 'visit_'
+                    with open(str(f), 'r') as file:
+                        # read file content
+                        file_content = file.read()
+                        try:
+                            visit_dict = json.loads(file_content)
+                            print visit_dict
+                            self.visits[
+                                visit_dict['Meta']['CandID'] +
+                                '_' +
+                                visit_dict['Meta']['Visit']
+                            ] = visit_dict['Meta']
+                        except ValueError:
+                            continue
+
             else:
                 # open file
                 with open(str(f), 'r') as file:
@@ -66,9 +97,20 @@ class LorisExtractor(BaseMetadataExtractor):
             # inside the f (file) get the Candidate and Visit from git annex metadata.
             # based on that get the dictionary above and yield it.
             strmeta = {}
+
             if metadata['Candidate'] + '_' + metadata['Visit'] in self.collection:
                 strmeta = self.collection[
                     metadata['Candidate'] + '_' + metadata['Visit']
                 ]
             # populate with bvl files
+            if metadata['Candidate'] in self.candidates:
+                candinfo = self.candidates[metadata['Candidate']]
+                for key in candinfo:
+                    value = candinfo[key]
+                    strmeta[key] = value
+            if metadata['Candidate'] + '_' + metadata['Visit'] in self.visits:
+                visit = self.visits[metadata['Candidate'] + '_' + metadata['Visit']]
+                strmeta['Age_at_MRI'] = visit['Age_at_MRI']
+                strmeta['Battery'] = visit['Battery']
+
             yield f, strmeta
